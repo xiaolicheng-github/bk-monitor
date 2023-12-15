@@ -38,6 +38,8 @@ import { handleTransformToTimestamp } from '../../../components/time-range/utils
 
 import { CONDITIONS, ICondtionItem } from './index';
 
+const NOTICE_USERS_KEY = 'notice_users';
+
 /* 每个key 包含的value选项数组 */
 export type TValueMap = Map<string, { id: string; name: string }[]>;
 /*
@@ -179,14 +181,16 @@ export async function allKVOptions(
   // 获取key (todo)
   getAssignConditionKeys()
     .then(keyRes => {
-      setData(
-        'keys',
-        '',
-        keyRes.map(item => ({
+      setData('keys', '', [
+        ...keyRes.map(item => ({
           id: item.key,
           name: item.display_key
-        }))
-      );
+        })),
+        {
+          id: NOTICE_USERS_KEY,
+          name: window.i18n.t('通知人员')
+        }
+      ]);
       awaitAll();
     })
     .catch(() => {
