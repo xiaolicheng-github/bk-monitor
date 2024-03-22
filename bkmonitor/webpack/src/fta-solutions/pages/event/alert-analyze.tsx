@@ -30,6 +30,7 @@ import { copyText } from 'monitor-common/utils/utils';
 import EmptyStatus from 'monitor-pc/components/empty-status/empty-status';
 import { EmptyStatusOperationType } from 'monitor-pc/components/empty-status/types';
 
+import AlertAnalyzeSkeleton from './skeleton/alert-analyze-skeleton';
 import { ActionAnlyzeField, AnlyzeField, ICommonItem, SearchType } from './typings/event';
 
 import './alert-analyze.scss';
@@ -396,67 +397,74 @@ export default class AlertAnalyze extends tsc<IAlertAnalyzeProps, IAlertAnalyzeE
     return (
       <div
         class='analyze-wrap'
-        v-bkloading={{ isLoading: this.loading }}
+        // v-bkloading={{ isLoading: this.loading }}
       >
-        <bk-button
-          class='add-btn'
-          icon='plus'
-          theme='primary'
-          onClick={() => (this.dialogShow = true)}
-        >
-          {this.$t('新增')}
-        </bk-button>
-        {this.analyzeData?.length ? (
-          <ul class='alert-analyze'>
-            {this.analyzeData.map(item =>
-              this.curFieldMap?.[item.field] || item.buckets.length ? (
-                <li
-                  class='alert-analyze-item'
-                  key={item.field}
-                >
-                  <div class='item-title'>
-                    {/* <i class="icon-drag"/> */}
-                    <span class='title-name'>
-                      {item.field === 'bk_biz_id'
-                        ? this.$t('项目空间')
-                        : this.curFieldMap[item.field] || this.analyzeTagList.find(set => set.id === item.field)?.name}
-                      {item.bucket_count ? ` ( ${item.bucket_count} )` : ''}
-                      {!!item.buckets?.length && (
-                        <span
-                          class='icon-monitor icon-mc-copy'
-                          v-bk-tooltips={{ placement: 'top', content: this.$t('批量复制') }}
-                          onClick={() => this.handleCopyNames(item.buckets || [])}
-                        ></span>
-                      )}
-                    </span>
-                    {item.bucket_count > 5 ? (
-                      <bk-button
-                        disabled={!item.bucket_count}
-                        onClick={() => item.bucket_count && this.handleDetailFieldChange(item.field)}
-                        class='check-btn'
-                        text
-                      >
-                        {this.$t('查看全部')}
-                      </bk-button>
-                    ) : undefined}
-                  </div>
-                  {this.chartItemComponent(item, 5)}
-                  <i
-                    onClick={() => this.handleDeleteFieldAnalyze(item.field)}
-                    class='icon-monitor icon-mc-close-fill delete-icon'
-                  />
-                </li>
-              ) : undefined
-            )}
-          </ul>
+        {this.loading ? (
+          <AlertAnalyzeSkeleton></AlertAnalyzeSkeleton>
         ) : (
-          <EmptyStatus
-            class='analyze-empty-warp'
-            type={this.hasSearchParams ? 'search-empty' : 'empty'}
-            onOperation={(type: EmptyStatusOperationType) => {
-              this.clearSearch(type);
-            }}
-          />
+          [
+            <bk-button
+              class='add-btn'
+              icon='plus'
+              theme='primary'
+              onClick={() => (this.dialogShow = true)}
+            >
+              {this.$t('新增')}
+            </bk-button>,
+            this.analyzeData?.length ? (
+              <ul class='alert-analyze'>
+                {this.analyzeData.map(item =>
+                  this.curFieldMap?.[item.field] || item.buckets.length ? (
+                    <li
+                      class='alert-analyze-item'
+                      key={item.field}
+                    >
+                      <div class='item-title'>
+                        {/* <i class="icon-drag"/> */}
+                        <span class='title-name'>
+                          {item.field === 'bk_biz_id'
+                            ? this.$t('项目空间')
+                            : this.curFieldMap[item.field] ||
+                              this.analyzeTagList.find(set => set.id === item.field)?.name}
+                          {item.bucket_count ? ` ( ${item.bucket_count} )` : ''}
+                          {!!item.buckets?.length && (
+                            <span
+                              class='icon-monitor icon-mc-copy'
+                              v-bk-tooltips={{ placement: 'top', content: this.$t('批量复制') }}
+                              onClick={() => this.handleCopyNames(item.buckets || [])}
+                            ></span>
+                          )}
+                        </span>
+                        {item.bucket_count > 5 ? (
+                          <bk-button
+                            disabled={!item.bucket_count}
+                            onClick={() => item.bucket_count && this.handleDetailFieldChange(item.field)}
+                            class='check-btn'
+                            text
+                          >
+                            {this.$t('查看全部')}
+                          </bk-button>
+                        ) : undefined}
+                      </div>
+                      {this.chartItemComponent(item, 5)}
+                      <i
+                        onClick={() => this.handleDeleteFieldAnalyze(item.field)}
+                        class='icon-monitor icon-mc-close-fill delete-icon'
+                      />
+                    </li>
+                  ) : undefined
+                )}
+              </ul>
+            ) : (
+              <EmptyStatus
+                class='analyze-empty-warp'
+                type={this.hasSearchParams ? 'search-empty' : 'empty'}
+                onOperation={(type: EmptyStatusOperationType) => {
+                  this.clearSearch(type);
+                }}
+              />
+            )
+          ]
         )}
         {this.fieldDialog()}
         {this.detailSideslider()}

@@ -23,38 +23,25 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-import { Component, Prop } from 'vue-property-decorator';
+import { Component } from 'vue-property-decorator';
 import { Component as tsc } from 'vue-tsx-support';
 
-import './action-detail-table-skeleton.scss';
+import './alert-analyze-skeleton.scss';
 
-interface IProps {
-  hasOther?: boolean;
-}
 @Component
-export default class ActionDetailTableSkeleton extends tsc<IProps> {
-  @Prop({ default: true }) hasOther: boolean;
+export default class AlertAnalyzeSkeleton extends tsc<{}> {
   render() {
     return (
-      <div class='action-detail-table-skeleton'>
-        <div class='h-32 w--100 mt-24 skeleton-element'></div>
-        <div class='h-20 w--100 mt-24 skeleton-element'></div>
-        {new Array(2).fill(null).map((_item, index) => (
-          <div
-            class='h-36 w--100 mt-26 skeleton-element'
-            key={index}
-          ></div>
-        ))}
-        {this.hasOther && [
-          <div class='h-32 w--100 mt-24 skeleton-element'></div>,
-          <div class='h-20 w--100 mt-24 skeleton-element'></div>,
-          new Array(2).fill(null).map((_item, index) => (
+      <div class='alert-analyze-skeleton'>
+        <div class='w-80 h-32 skeleton-element'></div>
+        <div class='container-01'>
+          {new Array(6).fill(null).map((_item, index) => (
             <div
-              class='h-36 w--100 mt-26 skeleton-element'
+              class='item skeleton-element'
               key={index}
             ></div>
-          ))
-        ]}
+          ))}
+        </div>
       </div>
     );
   }

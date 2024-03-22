@@ -35,6 +35,7 @@ import { TimeRangeType } from 'monitor-pc/components/time-range/time-range';
 import { IDetectionConfig, MetricType } from 'monitor-pc/pages/strategy-config/strategy-config-set-new/typings';
 import MonitorEchart from 'monitor-ui/monitor-echarts/monitor-echarts-new.vue';
 
+import ActionDetailTableSkeleton from './skeleton/action-detail-table-skeleton';
 import AiopsChartEvent, { createAutoTimerange } from './aiops-chart';
 import IntelligenceScene from './intelligence-scene';
 import LoadingBox from './loading-box';
@@ -71,15 +72,16 @@ export default class ViewInfo extends tsc<IViewInfoProp> {
   @Prop({ type: Object, default: () => ({}) }) detail: IDetail;
   // bizId
   @ProvideReactive('bkBizId') bkBizId = null;
-  public logData: ILogData[] = [];
-  public logDataPage = 0;
-  public logDataPageSize = 20;
-  public logDataEnd = false;
-  public showLoadingBox = false;
-  public tableHeight = 300;
-  public noGraphCode = [3314003, 3314004, 3308005];
-  public logDataOffset = 0;
-  public chart = {
+  logData: ILogData[] = [];
+  logDataPage = 0;
+  logDataPageSize = 20;
+  logDataEnd = false;
+  logLoading = false;
+  showLoadingBox = false;
+  tableHeight = 300;
+  noGraphCode = [3314003, 3314004, 3308005];
+  logDataOffset = 0;
+  chart = {
     width: 0,
     colors: ['#FDB980'],
     first: true,
@@ -92,7 +94,7 @@ export default class ViewInfo extends tsc<IViewInfoProp> {
     subtitle: '',
     chartType: 'line'
   };
-  public hasTraceSeries = false;
+  hasTraceSeries = false;
   /** 是否是自身缩放，解决自身缩放触发2次刷新，因为监听了aiops dataZoomTimeRange*/
   zoomFlag = false;
   traceInfoTimeRange = {};
@@ -241,8 +243,12 @@ export default class ViewInfo extends tsc<IViewInfoProp> {
       filter_dict: {},
       bk_biz_id: this.detail.bk_biz_id
     };
+    if (!this.logDataOffset) {
+      this.logLoading = true;
+    }
     const data = await logQuery(params).finally(() => (this.showLoadingBox = false));
     this.logData.push(...data);
+    this.logLoading = false;
     if (this.logData?.length) {
       this.tableHeight = this.logData.length * 42 + 60;
     }
@@ -583,20 +589,25 @@ export default class ViewInfo extends tsc<IViewInfoProp> {
           <span class='icon-monitor icon-hint'></span>
           <span class='tip-text'>{this.$t('默认显示最近20条')}</span>
         </div>
-        <div style={{ height: `${this.tableHeight}px` }}>
-          <bk-table data={this.logData}>
-            <bk-table-column
-              label={this.$t('时间')}
-              width={260}
-              scopedSlots={timeSlots}
-            ></bk-table-column>
-            <bk-table-column
-              label={this.$t('日志')}
-              scopedSlots={contentSlots}
-              showOverflowTooltip={true}
-            ></bk-table-column>
-          </bk-table>
-        </div>
+
+        {this.logLoading ? (
+          <ActionDetailTableSkeleton hasOther={false}></ActionDetailTableSkeleton>
+        ) : (
+          <div style={{ height: `${this.tableHeight}px` }}>
+            <bk-table data={this.logData}>
+              <bk-table-column
+                label={this.$t('时间')}
+                width={260}
+                scopedSlots={timeSlots}
+              ></bk-table-column>
+              <bk-table-column
+                label={this.$t('日志')}
+                scopedSlots={contentSlots}
+                showOverflowTooltip={true}
+              ></bk-table-column>
+            </bk-table>
+          </div>
+        )}
         {this.showLoadingBox ? (
           <div class='source-log-loading'>
             <LoadingBox></LoadingBox>
