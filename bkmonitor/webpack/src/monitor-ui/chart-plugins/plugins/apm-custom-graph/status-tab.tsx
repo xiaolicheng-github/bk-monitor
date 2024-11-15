@@ -143,7 +143,7 @@ export default class StatusTab extends tsc<IProps> {
             on-show={this.handleMoreShow}
           >
             <div
-              class={['status-more-trigger', { active: this.moreText }, { 'more-show': this.moreShow }]}
+              class={['status-more-trigger', { active: !!this.moreText }, { 'more-show': this.moreShow }]}
               slot='dropdown-trigger'
             >
               <span class='more-text'>{this.moreText || this.$t('更多')}</span>
