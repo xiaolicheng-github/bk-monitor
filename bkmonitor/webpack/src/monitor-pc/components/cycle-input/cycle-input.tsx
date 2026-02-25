@@ -71,9 +71,24 @@ export default class CycleInput extends tsc<IProps, IEvent> {
   /** 失焦更新值标记 */
   allowBlurUpdateValue = false;
 
+  get filterOptions() {
+    return this.options.map(item => ({
+      ...item,
+      children: item.children.filter(child => {
+        if (typeof child.id !== 'number') {
+          return true;
+        }
+        if (item.id === 'm') {
+          return this.minSec <= child.id * 60;
+        }
+        return this.minSec <= child.id;
+      }),
+    }));
+  }
+
   /** 当前周期可选列表 */
   get curCycleList() {
-    const list = this.options.find(item => item.id === this.unit)?.children;
+    const list = this.filterOptions.find(item => item.id === this.unit)?.children;
     if (this.needAuto) return list;
     return list.filter(item => item.id !== 'auto');
   }
@@ -190,6 +205,7 @@ export default class CycleInput extends tsc<IProps, IEvent> {
           class='input-popover'
           animation='slide-toggle'
           arrow={false}
+          disabled={!this.curCycleList.length}
           distance={12}
           offset={-1}
           placement='bottom-start'
